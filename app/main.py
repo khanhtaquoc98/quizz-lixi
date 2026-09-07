@@ -30,44 +30,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class VercelPathMiddleware:
-    """
-    Chuẩn hóa request path khi chạy trên Vercel:
-    - Khi Vercel rewrite đến /api/index.py hoặc /app/main.py, Vercel gửi URL gốc trong header x-forwarded-uri hoặc x-matched-path.
-    - Xóa các tiền tố file script (/api/index.py, /app/main.py) để FastAPI match đúng router.
-    """
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            headers = dict(scope.get("headers", []))
-            forwarded_uri = (
-                headers.get(b"x-forwarded-uri")
-                or headers.get(b"x-matched-path")
-                or headers.get(b"x-now-route-matches")
-            )
-            if forwarded_uri:
-                raw_path = forwarded_uri.decode("utf-8", errors="ignore").split("?")[0]
-                if raw_path and not raw_path.endswith(".py"):
-                    scope["path"] = raw_path
-
-            path = scope.get("path", "")
+@app.middleware("http")
+async def vercel_path_middleware(request: Request, call_next):
+    try:
+        forwarded_uri = request.headers.get("x-forwarded-uri") or request.headers.get("x-matched-path")
+        if forwarded_uri and not forwarded_uri.endswith(".py"):
+            request.scope["path"] = forwarded_uri.split("?")[0]
+        else:
+            path = request.scope.get("path", "")
             for prefix in ["/api/index.py", "/api/index", "/app/main.py"]:
                 if path == prefix:
-                    scope["path"] = "/"
+                    request.scope["path"] = "/"
                     break
                 elif path.startswith(prefix + "/"):
-                    scope["path"] = path[len(prefix):]
+                    request.scope["path"] = path[len(prefix):]
                     break
-
-        await self.app(scope, receive, send)
-
-app.add_middleware(VercelPathMiddleware)
+    except Exception as e:
+        print("[vercel_path_middleware] error:", e)
+    return await call_next(request)
 
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+
+@app.get("/api/index.py", response_class=HTMLResponse)
+@app.get("/app/main.py", response_class=HTMLResponse)
+async def vercel_fallback(request: Request):
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "title": "Ai Được Lì Xì",
+        "exact_ages": EXACT_AGES
+    })
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
