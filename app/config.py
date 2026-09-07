@@ -23,7 +23,8 @@ class Settings:
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     
     # Server Settings
-    PORT: int = int(os.getenv("PORT", "8000"))
-    HOST: str = os.getenv("HOST", "0.0.0.0")
+    _raw_port = os.getenv("PORT", "").strip()
+    PORT: int = int(_raw_port) if _raw_port.isdigit() else 8000
+    HOST: str = os.getenv("HOST", "0.0.0.0").strip() or "0.0.0.0"
 
 settings = Settings()
