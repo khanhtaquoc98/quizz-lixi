@@ -63,19 +63,19 @@ app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="stat
 @app.get("/api/index.py", response_class=HTMLResponse)
 @app.get("/app/main.py", response_class=HTMLResponse)
 async def vercel_fallback(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "title": "Ai Được Lì Xì",
-        "exact_ages": EXACT_AGES
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"title": "Ai Được Lì Xì", "exact_ages": EXACT_AGES}
+    )
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "title": "Ai Được Lì Xì",
-        "exact_ages": EXACT_AGES
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"title": "Ai Được Lì Xì", "exact_ages": EXACT_AGES}
+    )
 
 @app.get("/api/ages")
 async def get_ages():
