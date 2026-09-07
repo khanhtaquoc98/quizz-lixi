@@ -40,40 +40,60 @@ app.add_middleware(
 @app.middleware("http")
 async def vercel_path_middleware(request: Request, call_next):
     try:
-        path = request.scope.get("path", "")
-        for prefix in ["/api/index.py", "/api/index", "/app/main.py"]:
-            if path == prefix:
-                request.scope["path"] = "/"
-                break
-            elif path.startswith(prefix + "/"):
-                request.scope["path"] = path[len(prefix):]
-                break
+        target_path = request.query_params.get("__path")
+        if target_path is not None:
+            clean_path = "/" + target_path.lstrip("/")
+            request.scope["path"] = clean_path
+        elif request.scope.get("path") in ["/api/index.py", "/app/main.py"]:
+            request.scope["path"] = "/"
     except Exception as e:
         print("[vercel_path_middleware] error:", e)
     return await call_next(request)
 
 BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+# Check both app/static and root static
+static_dir = BASE_DIR / "static"
+if not static_dir.exists():
+    static_dir = BASE_DIR.parent / "static"
 
-@app.get("/api/index.py")
-@app.get("/app/main.py")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+def get_asset_content(rel_path: str) -> str:
+    for base in [BASE_DIR, BASE_DIR.parent]:
+        f = base / "static" / rel_path
+        if f.exists():
+            try:
+                return f.read_text(encoding="utf-8")
+            except Exception:
+                pass
+    return ""
+
+@app.get("/api/index.py", response_class=HTMLResponse)
+@app.get("/app/main.py", response_class=HTMLResponse)
 async def vercel_fallback(request: Request):
-    return {
-        "headers": {k: v for k, v in request.headers.items()},
-        "url": str(request.url),
-        "path": request.url.path,
-        "scope_keys": list(request.scope.keys()),
-        "scope_path": request.scope.get("path"),
-        "raw_path": request.scope.get("raw_path", b"").decode("utf-8", errors="ignore")
-    }
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={
+            "title": "Ai Được Lì Xì",
+            "exact_ages": EXACT_AGES,
+            "inline_css": get_asset_content("css/style.css"),
+            "inline_js": get_asset_content("js/app.js")
+        }
+    )
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"title": "Ai Được Lì Xì", "exact_ages": EXACT_AGES}
+        context={
+            "title": "Ai Được Lì Xì",
+            "exact_ages": EXACT_AGES,
+            "inline_css": get_asset_content("css/style.css"),
+            "inline_js": get_asset_content("js/app.js")
+        }
     )
 
 @app.get("/debug-headers")
