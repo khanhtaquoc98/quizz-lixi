@@ -12,6 +12,7 @@ const state = {
   currentQuestion: null,
   totalLixi: parseInt(localStorage.getItem('lixi_balance') || '0', 10),
   soundEnabled: localStorage.getItem('lixi_sound') !== 'false',
+  isAnswered: false,
 };
 
 // -----------------------------------------------------------
@@ -142,6 +143,7 @@ function initSoundToggle() {
 // -----------------------------------------------------------
 async function selectExactAge(age) {
   playSound('click');
+  state.isAnswered = false;
   stopReadQuiz();
   if ('speechSynthesis' in window) {
     window.speechSynthesis.resume();
@@ -183,6 +185,7 @@ async function selectExactAge(age) {
 // 5. MÀN HÌNH 2: RENDER CÂU HỎI + 4 ĐÁP ÁN A, B, C, D
 // -----------------------------------------------------------
 function renderQuizScreen(q) {
+  state.isAnswered = false;
   document.getElementById('quiz-age-pill-text').textContent = `🎈 ${q.age_label || (q.age + ' Tuổi')}`;
   document.getElementById('quiz-question-text').textContent = q.question;
 
@@ -201,9 +204,15 @@ function renderQuizScreen(q) {
     container.appendChild(btn);
   });
 
-  // Tự động đọc to câu hỏi và 4 đáp án ngay khi load câu hỏi
-  setTimeout(() => {
-    readQuizAloud();
+  // Tự động đọc to câu hỏi và 4 đáp án ngay khi load câu hỏi (chỉ đọc nếu người dùng chưa chọn đáp án)
+  if (autoReadTimer) {
+    clearTimeout(autoReadTimer);
+    autoReadTimer = null;
+  }
+  autoReadTimer = setTimeout(() => {
+    if (!state.isAnswered && state.currentQuestion === q) {
+      readQuizAloud();
+    }
   }, 200);
 }
 
@@ -212,10 +221,13 @@ function renderQuizScreen(q) {
 // -----------------------------------------------------------
 async function handleSelectOption(selectedKey, clickedBtn) {
   const q = state.currentQuestion;
-  if (!q) return;
+  if (!q || state.isAnswered) return;
+  state.isAnswered = true;
 
-  // Stop reading if user answers
+  // NGƯNG ĐỌC NGAY LẬP TỨC KHI CHỌN ĐÁP ÁN
   stopReadQuiz();
+  setTimeout(stopReadQuiz, 50);
+  setTimeout(stopReadQuiz, 150);
 
   // Disable all options
   document.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = true);
@@ -318,8 +330,11 @@ function returnToAgeScreen() {
 // -----------------------------------------------------------
 // 8. TEXT-TO-SPEECH (TTS): ĐỌC CÂU HỎI KÈM ĐÁP ÁN A, B, C, D
 // -----------------------------------------------------------
+let autoReadTimer = null;
+let ttsAbortController = null;
 let currentTTSAudio = null;
 let isSpeaking = false;
+let currentTTSId = 0;
 
 function buildQuizSpeechText(q) {
   let text = `${q.question}. `;
@@ -347,22 +362,41 @@ function updateReadButtonUI(speaking) {
 }
 
 function stopReadQuiz() {
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
+  currentTTSId++; // Vô hiệu hoá mọi tác vụ async TTS đang chờ
+  if (autoReadTimer) {
+    clearTimeout(autoReadTimer);
+    autoReadTimer = null;
+  }
+  if (ttsAbortController) {
+    try { ttsAbortController.abort(); } catch (e) {}
+    ttsAbortController = null;
+  }
+  if ('speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.cancel();
+    } catch (e) {}
   }
   if (currentTTSAudio) {
-    currentTTSAudio.pause();
-    currentTTSAudio.currentTime = 0;
+    try {
+      currentTTSAudio.pause();
+      currentTTSAudio.currentTime = 0;
+      currentTTSAudio.src = '';
+    } catch (e) {}
     currentTTSAudio = null;
   }
   updateReadButtonUI(false);
 }
 
 function startReadQuiz() {
+  if (state.isAnswered) return; // Đã trả lời thì tuyệt đối không phát âm thanh
   stopReadQuiz();
+  if (state.isAnswered) return;
+
   const q = state.currentQuestion;
   if (!q) return;
 
+  const thisTTSId = currentTTSId;
   const speechText = buildQuizSpeechText(q);
   updateReadButtonUI(true);
 
@@ -381,8 +415,9 @@ function startReadQuiz() {
 
       utterance.onend = () => updateReadButtonUI(false);
       utterance.onerror = (e) => {
+        if (state.isAnswered || thisTTSId !== currentTTSId) return;
         console.warn('SpeechSynthesis error, falling back to server TTS:', e);
-        playServerTTS(speechText);
+        playServerTTS(speechText, thisTTSId);
       };
       window.speechSynthesis.speak(utterance);
       return;
@@ -392,7 +427,7 @@ function startReadQuiz() {
   }
 
   // Strategy 2: Server-side gTTS fallback
-  playServerTTS(speechText);
+  playServerTTS(speechText, thisTTSId);
 }
 
 function readQuizAloud() {
@@ -407,23 +442,32 @@ async function toggleReadQuiz() {
   }
 }
 
-async function playServerTTS(text) {
+async function playServerTTS(text, thisTTSId) {
+  if (state.isAnswered || (thisTTSId !== undefined && thisTTSId !== currentTTSId)) return;
   try {
+    ttsAbortController = new AbortController();
     const res = await fetch('/api/quiz/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text }),
+      signal: ttsAbortController.signal
     });
     if (!res.ok) throw new Error('TTS server error');
+    if (state.isAnswered || (thisTTSId !== undefined && thisTTSId !== currentTTSId)) return;
+
     const blob = await res.blob();
+    if (state.isAnswered || (thisTTSId !== undefined && thisTTSId !== currentTTSId)) return;
+
     const audioUrl = URL.createObjectURL(blob);
     currentTTSAudio = new Audio(audioUrl);
-    currentTTSAudio.playbackRate = 1.18; // Tốc độ nhanh hơn
+    currentTTSAudio.playbackRate = 1.18;
     currentTTSAudio.onended = () => updateReadButtonUI(false);
     currentTTSAudio.onerror = () => updateReadButtonUI(false);
     await currentTTSAudio.play();
   } catch (err) {
-    console.warn('TTS playback error:', err);
+    if (err.name !== 'AbortError') {
+      console.warn('TTS playback error:', err);
+    }
     updateReadButtonUI(false);
   }
 }
