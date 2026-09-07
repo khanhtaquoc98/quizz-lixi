@@ -56,14 +56,17 @@ BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
-@app.get("/api/index.py", response_class=HTMLResponse)
-@app.get("/app/main.py", response_class=HTMLResponse)
+@app.get("/api/index.py")
+@app.get("/app/main.py")
 async def vercel_fallback(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={"title": "Ai Được Lì Xì", "exact_ages": EXACT_AGES}
-    )
+    return {
+        "headers": {k: v for k, v in request.headers.items()},
+        "url": str(request.url),
+        "path": request.url.path,
+        "scope_keys": list(request.scope.keys()),
+        "scope_path": request.scope.get("path"),
+        "raw_path": request.scope.get("raw_path", b"").decode("utf-8", errors="ignore")
+    }
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
