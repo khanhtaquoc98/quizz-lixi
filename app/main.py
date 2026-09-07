@@ -77,6 +77,15 @@ async def index(request: Request):
         context={"title": "Ai Được Lì Xì", "exact_ages": EXACT_AGES}
     )
 
+@app.get("/debug-headers")
+async def debug_headers(request: Request):
+    return {
+        "url": str(request.url),
+        "path": request.url.path,
+        "raw_scope_path": request.scope.get("path"),
+        "headers": dict(request.headers)
+    }
+
 @app.get("/api/ages")
 async def get_ages():
     return {
