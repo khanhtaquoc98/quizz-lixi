@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ai Được Lì Xì</title>
+  <meta name="description"
+    content="Ai Được Lì Xì - Game đố vui trí tuệ AI theo từng độ tuổi từ 3 tuổi đến Đại học, nhận lì xì 50k may mắn!">
+
+  <!-- Google Fonts: Baloo 2 & Nunito (100% Vietnamese support, playful & rounded) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Floating pastel bubbles in background -->
+  <div class="fun-bg-elements" aria-hidden="true">
+    <div class="floating-bubble"
+      style="width: 140px; height: 140px; background: #fed7aa; left: 8%; animation-delay: 0s; animation-duration: 18s;">
+    </div>
+    <div class="floating-bubble"
+      style="width: 80px; height: 80px; background: #fecdd3; left: 80%; animation-delay: 3s; animation-duration: 14s;">
+    </div>
+    <div class="floating-bubble"
+      style="width: 110px; height: 110px; background: #bae6fd; left: 45%; animation-delay: 6s; animation-duration: 20s;">
+    </div>
+    <div class="floating-bubble"
+      style="width: 90px; height: 90px; background: #bbf7d0; left: 25%; animation-delay: 8s; animation-duration: 16s;">
+    </div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand-section" onclick="returnToAgeScreen()" role="button" tabindex="0" title="Về trang chọn tuổi">
+        <div class="brand-logo-icon">🧧</div>
+        <div>
+          <h1 class="brand-title">Ai Được Lì Xì</h1>
+          <div class="brand-sub">Đố Vui Trí Tuệ AI Theo Đúng Tuổi</div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Sound toggle -->
+        <button id="btn-sound-toggle" class="sound-toggle-btn" title="Bật/Tắt âm thanh" aria-label="Toggle Sound">
+          🔊
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================================================
+         MÀN HÌNH 1: MÀN HÌNH CHỌN ĐÚNG TUỔI (SCREEN-AGE)
+    ============================================================ -->
+    <section id="screen-age" class="screen-container active">
+      <div class="age-hero-banner">
+        <h2 class="age-hero-title">
+          Bạn Bao Nhiêu <span>Tuổi</span> Rồi Nhỉ?
+        </h2>
+      </div>
+
+      <!-- Grid các nút tuổi từ 3 tuổi đến 22+ Đại học -->
+      <div class="age-grid">
+        {% for item in exact_ages %}
+        <div class="age-btn-card" style="--card-color: {{ item.color }};" onclick="selectExactAge({{ item.age }})"
+          role="button" tabindex="0" aria-label="Chọn {{ item.label }} ({{ item.sublabel }})">
+          <div class="age-btn-icon">{{ item.icon }}</div>
+          <div class="age-btn-number">{{ item.label }}</div>
+          <div class="age-btn-sub">{{ item.sublabel }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MÀN HÌNH 2: MÀN HÌNH QUIZZ (SCREEN-QUIZ)
+    ============================================================ -->
+    <section id="screen-quiz" class="screen-container">
+      <div class="quiz-header-bar">
+        <button class="btn-back-home" onclick="returnToAgeScreen()">
+          ⬅ Chọn lại tuổi
+        </button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="btn-read-quiz" class="btn-read-quiz" onclick="toggleReadQuiz()" title="Bấm để nghe đọc câu hỏi và 4 đáp án">
+            <span id="read-icon">🔊</span> <span id="read-label">Đọc câu hỏi</span>
+          </button>
+          <div class="quiz-age-pill" id="quiz-age-pill-text">
+            🎈 Bé 4 Tuổi
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="question-card-box">
+        <div class="question-mascot">✨ Câu Đố Vui AI ✨</div>
+        <div class="question-content-text" id="quiz-question-text">
+          Đang tải câu hỏi...
+        </div>
+      </div>
+
+      <!-- 4 Options A, B, C, D -->
+      <div class="quiz-options-grid" id="quiz-options-wrapper">
+        <!-- Dynamically rendered buttons -->
+      </div>
+
+      <div style="text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 600; margin-top: 8px;">
+        💡 Bạn có thể bấm chọn hoặc nhấn phím <strong>A</strong>, <strong>B</strong>, <strong>C</strong>,
+        <strong>D</strong> trên bàn phím!
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MÀN HÌNH 3: MÀN HÌNH CHÚC MỪNG (SCREEN-CONGRAT)
+    ============================================================ -->
+    <section id="screen-congrat" class="screen-container">
+      <div class="congrat-card-wrapper">
+        <!-- Animated Lucky Envelope -->
+        <div class="big-lixi-box" id="congrat-icon-box">
+          <div class="lixi-coin-badge">🧧</div>
+          <div class="lixi-tag-name">LÌ XÌ VÀNG</div>
+        </div>
+
+        <h2 class="congrat-main-title" id="congrat-title-text">
+          🎉 CHÚC MỪNG BẠN ĐÃ TRẢ LỜI ĐÚNG!
+        </h2>
+
+        <div class="congrat-prize-highlight" id="congrat-prize-text">
+          50k Lì Xì
+        </div>
+
+        <div class="congrat-detail-box" id="congrat-detail-text">
+          <!-- Explanation injected here -->
+        </div>
+
+        <!-- Button to return to Age Screen -->
+        <button class="btn-return-age-screen" onclick="returnToAgeScreen()">
+          Quay Lại Chọn Tuổi ↩
+        </button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>🧧 <strong>Ai Được Lì Xì</strong> • Đố Vui Trí Tuệ Theo Tuổi</p>
+      <p style="margin-top: 4px; font-size: 0.75rem;">Trò chơi đố vui trí tuệ dân gian & hiện đại</p>
+    </footer>
+  </div>
+
+  <!-- Loading Animation Overlay -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-bouncing-icon">🧧</div>
+    <div class="loading-title">Đang Chuẩn Bị Câu Đố...</div>
+    <div class="loading-desc" id="loading-desc">Chờ một chút xíu thôi nhé!</div>
+  </div>
+
+  <!-- Client Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+
+</html>

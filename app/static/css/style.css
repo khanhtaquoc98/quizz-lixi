@@ -1,0 +1,761 @@
+/* -----------------------------------------------------------
+   TÊN WEBAPP: AI ĐƯỢC LÌ XÌ
+   THEME: LIGHT THEME - VUI NHỘN, THIẾU NHI, RỰC RỠ, NĂNG ĐỘNG
+   RESPONSIVE: MOBILE, TABLET & DESKTOP
+----------------------------------------------------------- */
+
+:root {
+  /* Cheerful Light Theme Palette */
+  --bg-body: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-soft: #f1f5f9;
+  
+  --primary-red: #ef4444;
+  --primary-red-hover: #dc2626;
+  --primary-gold: #f59e0b;
+  --primary-gold-light: #fef3c7;
+  --primary-emerald: #10b981;
+  --primary-blue: #0ea5e9;
+  
+  --text-dark: #1e293b;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  
+  --border-subtle: #e2e8f0;
+  --border-bright: #fde68a;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-pop: 0 8px 0 rgba(0, 0, 0, 0.1);
+  
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+  
+  --font-main: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Baloo 2', 'Nunito', cursive, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-body);
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(254, 243, 199, 0.6) 0%, transparent 40%),
+    radial-gradient(circle at 90% 20%, rgba(254, 205, 211, 0.5) 0%, transparent 40%),
+    radial-gradient(circle at 50% 90%, rgba(224, 242, 254, 0.6) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-dark);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Floating festive playful background dots */
+.fun-bg-elements {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.floating-bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.45;
+  animation: floatUp 16s infinite linear;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(105vh) scale(0.6); opacity: 0; }
+  15% { opacity: 0.5; }
+  85% { opacity: 0.5; }
+  100% { transform: translateY(-15vh) scale(1.1); opacity: 0; }
+}
+
+/* App Container */
+.app-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 20px 48px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid #fed7aa;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 24px;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.brand-logo-icon {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, #ef4444 0%, #f43f5e 100%);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  animation: bounceMini 2.5s infinite ease-in-out;
+}
+
+@keyframes bounceMini {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #dc2626;
+  letter-spacing: -0.01em;
+}
+
+.brand-sub {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lixi-balance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  color: #b45309;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+}
+
+.sound-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, background 0.15s;
+}
+
+.sound-toggle-btn:hover {
+  transform: scale(1.08);
+  background: #f8fafc;
+}
+
+/* ============================================================
+   MÀN HÌNH 1: MÀN HÌNH CHỌN TUỔI (SCREEN-AGE)
+============================================================ */
+.screen-container {
+  display: none;
+  animation: screenFadeIn 0.35s ease-out;
+}
+
+.screen-container.active {
+  display: block;
+}
+
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.age-hero-banner {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 10px;
+}
+
+.age-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fee2e2;
+  border: 1.5px solid #f87171;
+  color: #dc2626;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 5px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 12px;
+}
+
+.age-hero-title {
+  font-family: var(--font-display);
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+
+.age-hero-title span {
+  color: #ef4444;
+}
+
+.age-hero-desc {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Age Grid */
+.age-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 500px) {
+  .age-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .age-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (min-width: 940px) {
+  .age-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+  }
+}
+
+.age-btn-card {
+  background: var(--bg-card);
+  border: 2.5px solid var(--card-color, #f59e0b);
+  border-radius: var(--radius-lg);
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 4px 0 var(--card-color, #f59e0b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.age-btn-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 6px 0 var(--card-color, #f59e0b);
+}
+
+.age-btn-card:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 0 var(--card-color, #f59e0b);
+}
+
+.age-btn-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.age-btn-number {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.age-btn-sub {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   MÀN HÌNH 2: MÀN HÌNH QUIZZ (SCREEN-QUIZ)
+============================================================ */
+.quiz-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.btn-back-home {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+
+.btn-back-home:hover {
+  border-color: #94a3b8;
+  color: #1e293b;
+  transform: translateX(-2px);
+}
+
+.quiz-age-pill {
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+  color: #b91c1c;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+}
+
+.btn-read-quiz {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  color: #b45309;
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-read-quiz:hover {
+  background: #fde68a;
+  transform: scale(1.04);
+}
+
+.btn-read-quiz.is-reading {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #b91c1c;
+  animation: readingPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes readingPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+/* Question Box */
+.question-card-box {
+  background: #ffffff;
+  border: 3px solid #fed7aa;
+  border-radius: var(--radius-xl);
+  padding: 38px 30px 32px;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 34px;
+  position: relative;
+  text-align: center;
+}
+
+.question-mascot {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  padding: 5px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #b45309;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.2);
+}
+
+.question-content-text {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.6;
+  white-space: pre-line;
+  margin-top: 14px;
+}
+
+/* 4 Options A, B, C, D */
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+@media (min-width: 620px) {
+  .quiz-options-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+}
+
+.quiz-opt-btn {
+  background: #ffffff;
+  border: 2.5px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #1e293b;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04), 0 3px 0 #cbd5e1;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.quiz-opt-btn:hover:not(:disabled) {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(245, 158, 11, 0.15), 0 5px 0 #f59e0b;
+}
+
+.quiz-opt-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 0 #cbd5e1;
+}
+
+.opt-letter {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #475569;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.quiz-opt-btn:hover:not(:disabled) .opt-letter {
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #f59e0b;
+}
+
+.opt-text {
+  flex: 1;
+  line-height: 1.35;
+}
+
+/* Correct / Wrong States */
+.quiz-opt-btn.is-correct {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+  color: #065f46 !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3), 0 4px 0 #059669 !important;
+}
+
+.quiz-opt-btn.is-correct .opt-letter {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+}
+
+.quiz-opt-btn.is-wrong {
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3), 0 4px 0 #dc2626 !important;
+  animation: gentleShake 0.4s ease;
+}
+
+.quiz-opt-btn.is-wrong .opt-letter {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+}
+
+@keyframes gentleShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* ============================================================
+   MÀN HÌNH 3: MÀN HÌNH CHÚC MỪNG (SCREEN-CONGRAT)
+============================================================ */
+.congrat-card-wrapper {
+  max-width: 600px;
+  margin: 20px auto;
+  background: #ffffff;
+  border: 3.5px solid #fed7aa;
+  border-radius: var(--radius-xl);
+  padding: 36px 28px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+/* Animated Lucky Red Envelope */
+.big-lixi-box {
+  width: 110px;
+  height: 140px;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 60%, #b91c1c 100%);
+  border: 3px solid #fde68a;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  animation: lixiHop 1.8s infinite ease-in-out;
+  position: relative;
+}
+
+@keyframes lixiHop {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-10px) rotate(-4deg); }
+  70% { transform: translateY(-5px) rotate(4deg); }
+}
+
+.lixi-coin-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde68a 0%, #f59e0b 100%);
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.lixi-tag-name {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #fde68a;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.congrat-main-title {
+  font-family: var(--font-display);
+  font-size: 1.95rem;
+  font-weight: 800;
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+
+.congrat-prize-highlight {
+  font-family: var(--font-display);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef3c7;
+  border: 2.5px solid #f59e0b;
+  color: #b45309;
+  font-size: 1.6rem;
+  font-weight: 800;
+  padding: 8px 26px;
+  border-radius: var(--radius-full);
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+
+.congrat-detail-box {
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.55;
+  text-align: left;
+  margin-bottom: 26px;
+}
+
+.congrat-detail-box strong {
+  color: #0f172a;
+}
+
+/* Button to return to Age Selection */
+.btn-return-age-screen {
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  color: #ffffff;
+  border: none;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 15px 36px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4), 0 4px 0 #b91c1c;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  justify-content: center;
+}
+
+.btn-return-age-screen:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.5), 0 5px 0 #b91c1c;
+}
+
+.btn-return-age-screen:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3), 0 1px 0 #b91c1c;
+}
+
+/* ============================================================
+   LOADING OVERLAY
+============================================================ */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.loading-bouncing-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: bounceGiant 1.2s infinite ease-in-out;
+}
+
+@keyframes bounceGiant {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.1); }
+}
+
+.loading-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+.loading-desc {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: auto;
+  text-align: center;
+  padding-top: 36px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .app-wrapper {
+    padding: 12px 14px 40px;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+  }
+  .age-hero-title {
+    font-size: 1.65rem;
+  }
+  .question-content-text {
+    font-size: 1.2rem;
+  }
+  .quiz-opt-btn {
+    padding: 13px 16px;
+    font-size: 0.98rem;
+  }
+  .opt-letter {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+}
