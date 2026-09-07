@@ -30,6 +30,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class VercelPathMiddleware:
+    """
+    Chuẩn hóa request path khi chạy trên Vercel:
+    - Khi Vercel rewrite đến /api/index.py hoặc /app/main.py, Vercel gửi URL gốc trong header x-forwarded-uri hoặc x-matched-path.
+    - Xóa các tiền tố file script (/api/index.py, /app/main.py) để FastAPI match đúng router.
+    """
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            headers = dict(scope.get("headers", []))
+            forwarded_uri = (
+                headers.get(b"x-forwarded-uri")
+                or headers.get(b"x-matched-path")
+                or headers.get(b"x-now-route-matches")
+            )
+            if forwarded_uri:
+                raw_path = forwarded_uri.decode("utf-8", errors="ignore").split("?")[0]
+                if raw_path and not raw_path.endswith(".py"):
+                    scope["path"] = raw_path
+
+            path = scope.get("path", "")
+            for prefix in ["/api/index.py", "/api/index", "/app/main.py"]:
+                if path == prefix:
+                    scope["path"] = "/"
+                    break
+                elif path.startswith(prefix + "/"):
+                    scope["path"] = path[len(prefix):]
+                    break
+
+        await self.app(scope, receive, send)
+
+app.add_middleware(VercelPathMiddleware)
+
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
