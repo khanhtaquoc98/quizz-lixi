@@ -40,18 +40,14 @@ app.add_middleware(
 @app.middleware("http")
 async def vercel_path_middleware(request: Request, call_next):
     try:
-        forwarded_uri = request.headers.get("x-forwarded-uri") or request.headers.get("x-matched-path")
-        if forwarded_uri and not forwarded_uri.endswith(".py"):
-            request.scope["path"] = forwarded_uri.split("?")[0]
-        else:
-            path = request.scope.get("path", "")
-            for prefix in ["/api/index.py", "/api/index", "/app/main.py"]:
-                if path == prefix:
-                    request.scope["path"] = "/"
-                    break
-                elif path.startswith(prefix + "/"):
-                    request.scope["path"] = path[len(prefix):]
-                    break
+        path = request.scope.get("path", "")
+        for prefix in ["/api/index.py", "/api/index", "/app/main.py"]:
+            if path == prefix:
+                request.scope["path"] = "/"
+                break
+            elif path.startswith(prefix + "/"):
+                request.scope["path"] = path[len(prefix):]
+                break
     except Exception as e:
         print("[vercel_path_middleware] error:", e)
     return await call_next(request)
