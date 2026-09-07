@@ -1,8 +1,9 @@
+import traceback
 from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -21,6 +22,12 @@ app = FastAPI(
     description="Ứng dụng đố vui trí tuệ AI chọn theo tuổi cụ thể từ 3 tuổi đến Đại học, nhận lì xì 50k (đúng) hoặc 5k (sai).",
     version="2.0.0"
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    err_trace = traceback.format_exc()
+    print(f"FASTAPI ERROR on {request.url.path}:\n{err_trace}")
+    return PlainTextResponse(f"FastAPI Exception:\n{err_trace}", status_code=500)
 
 app.add_middleware(
     CORSMiddleware,
